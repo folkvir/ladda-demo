@@ -1,0 +1,33 @@
+{
+  "name": "ladda-demo",
+  "version": "1.0.0",
+  "description": "Ladda demo",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "cd LaddaFogletDemo && npm install",
+    "start": "concurrently \"npm run signaling-server\" \"npm run demo\"",
+    "demo": "cd LaddaFogletDemo && npm start",
+    "signaling-server": "node node_modules/foglet-signaling-server/express-signaling-server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/folkvir/ladda-demo.git"
+  },
+  "keywords": [
+    "ladda",
+    "demo",
+    "query-delegation",
+    "foglet-ndp",
+    "foglet-core"
+  ],
+  "author": "Grall Arnaud (Folkvir)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/folkvir/ladda-demo/issues"
+  },
+  "homepage": "https://github.com/folkvir/ladda-demo#readme",
+  "dependencies": {
+    "concurrently": "^3.4.0",
+    "foglet-signaling-server": "^0.1.0"
+  }
+}
