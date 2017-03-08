@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background-color: #4CAF50;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+}
+
+a.btn {
+    color: white !important;
+    cursor: pointer;
+}
+
+.vis-item {
+    cursor: pointer;
+}

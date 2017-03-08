@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Ladda Foglet Demo</title>
+
+        <meta charset="utf-8">
+
+        <!-- jQuery -->
+        <script type="text/javascript" src="/node_modules/jquery/dist/jquery.min.js"></script>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <script type="text/javascript" src="/node_modules/tether/dist/js/tether.min.js"></script>
+        <script type="text/javascript" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+        <!-- Spray-wrtc -->
+        <script type="text/javascript" src="/node_modules/spray-wrtc/build/spray-wrtc.bundle.js"></script>
+
+        <!-- Foglet-ndp -->
+        <script type="text/javascript" src="/node_modules/foglet-ndp/build/foglet-ndp.bundle.js"> </script>
+
+        <!-- Vis.js -->
+        <link rel="stylesheet" href="/node_modules/vis/dist/vis.css">
+        <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
+
+        <!-- Ladda Foglet Demo -->
+        <link rel="stylesheet" href="/style.css">
+        <script type="text/javascript" src="/main.js"></script>
+    </head>
+    <body>
+        <nav class="navbar">
+            <h1 class="text-center">
+                Ladda Foglet Demo
+                <a href="https://github.com/folkvir/ladda-demo/" class="float-right" target="_blank">
+                    <img src="/logo-github.png" title="Find us on github">
+                </a>
+            </h1>
+        </nav>
+        <br/>
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Timeline</h3>
+                </div>
+                <div class="card-block">
+                    <div id="timeline"></div>
+                </div>
+                <div class="card-block">
+                    <div class="row">
+                        <div class="col-4">
+                            <p>
+                                <table>
+                                    <tr>
+                                        <th>Global execution time:</th>
+                                        <td class="text-right" style="padding-left: 20px;">
+                                            <span id="global_execution_time">--</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Cumulated execution time:</th>
+                                        <td class="text-right">
+                                            <span id="cumulated_execution_time">--</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Improvement ratio:</th>
+                                        <td class="text-right">
+                                            <span id="improvement_ratio">--</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Neighbours queries executed:</th>
+                                        <td class="text-right">
+                                            <span id="neighbours_queries_executed">0</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </p>
+                        </div>
+                        <div class="col-8">
+                            <div id="item" class="card" style="display:none">
+                                <div class="card-header" data-toggle="collapse" href="#itemTable" aria-expanded="true" style="cursor: pointer;">
+                                    <h4>Query <span class="float-right">&#9661;</span></h4>
+                                </div>
+                                <div class="card-block collapse" id="itemTable">
+                                    <table class="table">
+                                        <tr>
+                                            <th>Query id:</th>
+                                            <td class="qId"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Client id:</th>
+                                            <td class="id"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Started at:</th>
+                                            <td class="started_at"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Ended at:</th>
+                                            <td class="ended_at"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Query:</th>
+                                            <td class="query"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Response:</th>
+                                            <td><pre class="payload"></pre></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Queries</h3>
+                        </div>
+                        <div class="card-block">
+                            <textarea id="queries" class="form-control" style="min-height: 300px;">[
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 5 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 10 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 15 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 20 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 25 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 30 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 35 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 40 LIMIT 5",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 45 LIMIT 5"
+]</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="card-block">
+                            <div class="form-group">
+                                <label for="endpoint">Endpoint</label>
+                                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
+                            </div>
+                            <div class="form-group">
+                                <label for="delegation_number">Delegation number</label>
+                                <input type="number" class="form-control" id="delegation_number" value="2">
+                            </div>
+                            <p>
+                                <b>Number of neighbours:</b> <span id="neighbours_count">--</span>
+                            </p>
+                        </div>
+                        <div class="card-block">
+                            <a id="send_queries" class="btn btn-success float-right disabled" onclick="sendQueries()">Execute queries</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
