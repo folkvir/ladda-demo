@@ -1,0 +1,9 @@
+language: node_js
+node_js: node
+install:
+  - npm install
+  - npm run custom-install
+deploy:
+  provider: heroku
+  api_key:
+    - secure: tt9IB36na4vAtzPqtv8zFPE8jS8cjL5GWNCNq/IoUCsEFvI8xgUIZZ1H+BustOnalwUpfi42Som92XJYCl85yh1wU5qAo+r8YwBt6qiE2V/kZq6wqJks4I3B6j9fcPelaFx3SgwwPPxnyHvEugwyXK9lzCYTH1SFJgWRUPjxiS2Xw80ZBR68wCDb5At42kE7nEof0PXGTvPuobdKiYQE93Lso+GJ9v7PNXX65An5T6fX2nkYDzg5AOvMxZvImdmYB4lo9RBVMuR4ted1f4rIkGv6pqXYaaa/DBXpO1uqHARaWyqGdcTpNICHM9YRYOW+BSUNr2XTQVYcdhxZgmzF2I7YCW/juRktqFK7HZEpnd6jETBaFD67dqcIiALW/kJ0ZcnbkPloSVPDm8/MUkSIEU7zSbe4OWorgyTUH6gUMIAN+4GRpY1Io1rTYj/o5YUc9HwYEpqdahrAqgwkgW9ui0LSoze8MEysiWR6CsYxtRIyJwAfHfls67wCqf5JzBCYuQN76dmw+QvvICPCYQPIIz7k2/DOoCnWzkaScT7VWUBi7PNXD7iGmNDemGTi8x8Y8s6o/MwINGeKh0w4xuS6lRB2mx8++2e5V0GRVp2UiSD9unDLL9WseS/OlsNfPtpimXuIrU+F2DRsjmCo179Ax0WMakio+nf09gXCOR+jYkA=
