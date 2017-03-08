@@ -4,9 +4,9 @@
   "description": "Ladda demo",
   "main": "index.js",
   "scripts": {
-    "postinstall": "cd LaddaFogletDemo && npm install",
+    "custom-install": "cd externals/LaddaFogletDemo && npm install",
     "start": "concurrently \"npm run signaling-server\" \"npm run demo\"",
-    "demo": "cd LaddaFogletDemo && npm start",
+    "demo": "cd externals/LaddaFogletDemo && npm start",
     "signaling-server": "node node_modules/foglet-signaling-server/express-signaling-server.js"
   },
   "repository": {

@@ -1,3 +1,6 @@
 [submodule "LaddaFogletDemo"]
 	path = LaddaFogletDemo
 	url = https://github.com/folkvir/LaddaFogletDemo.git
+[submodule "externals/LaddaFogletDemo"]
+	path = externals/LaddaFogletDemo
+	url = https://github.com/folkvir/LaddaFogletDemo.git
