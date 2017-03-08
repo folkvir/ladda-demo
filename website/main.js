@@ -77,6 +77,7 @@ function createFoglet(iceServers) {
     });
 
     foglet.events.on("ndp-answer", function(message) {
+      console.log(message);
         onReceiveAnswer(message);
     });
 
