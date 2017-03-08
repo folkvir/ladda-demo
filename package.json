@@ -2,7 +2,7 @@
   "name": "ladda-demo",
   "version": "1.0.0",
   "description": "Ladda demo",
-  "main": "index.js",
+  "main": "http-server.js",
   "scripts": {
     "start": "node http-server.js"
   },
