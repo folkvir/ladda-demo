@@ -14,8 +14,9 @@
     "url": "git+https://github.com/folkvir/ladda-demo.git"
   },
   "keywords": [
+    "ladda-demo",
     "ladda",
-    "demo",
+    "demo"
     "query-delegation",
     "foglet-ndp",
     "foglet-core"
