@@ -56,7 +56,7 @@ function createFoglet(iceServers) {
         deltatime: 1000 * 60 * 15,
         timeout: 1000 * 60 * 60,
         room: "sparqldistribution",
-        signalingServer: "https://signaling.herokuapp.com/",
+        signalingAdress: "http://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol()
     });
 

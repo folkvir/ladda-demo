@@ -7,7 +7,7 @@ var port = process.env.PORT || 3000;
 
 app.use(cors());
 
-app.use('/', express.static(__dirname + "/website/"));
+app.use('/', express.static(__dirname + "/"));
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + "/website/index.html");
