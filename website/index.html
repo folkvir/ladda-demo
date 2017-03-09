@@ -45,7 +45,7 @@
                 <h5>Improvement ratio:&nbsp;&nbsp;&nbsp;&nbsp;<span id="improvement_ratio">---</span></h5>
             </div>
             <div class="col">
-                <b>Neighbours queries executed:&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span>
+                <b>Neighbours queries executed:&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span> <a href='#' onclick='modalDelegated()'> (show) </a>
             </div>
         </div>
         <br>
@@ -60,10 +60,10 @@
             </div>
             <br/>
             <div class="row">
-                <div class="col-8">
+                <div class="col-8" id='queries-area'>
                     <div class="card">
                         <div class="card-header">
-                            <h3>Queries</h3>
+                            <h3>Queries <a href='#' onclick='showQueryStatus()'>(status)</a></h3>
                         </div>
                         <div class="card-block">
                             <textarea id="queries" class="form-control" style="min-height: 300px;">[
@@ -78,6 +78,30 @@
    " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 40 LIMIT 5",
    " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 45 LIMIT 5"
 ]</textarea>
+                        </div>
+                    </div>
+                </div>
+								<div class="col-8" id='queries-status'>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Status <a href='#' onclick='showQueriesArea()'>(queries)</a></h3>
+                        </div>
+                        <div class="card-block table-responsive">
+                          <table class='table table-bordered' id='queriesStatusTable'>
+														<thead class="thead-inverse">
+															<tr>
+																<th>#</th>
+																<th>Query</th>
+																<th>Status</th>
+															</tr>
+														</thead>
+														<tbody id='statusQueryBody'>
+															<tr>
+																<td></td>
+																<td></td>
+															</tr>
+														</tbody>
+													</table>
                         </div>
                     </div>
                 </div>
@@ -147,6 +171,37 @@
                             <div class="col-12">
                                 <pre class="payload"></pre>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+				<div class="modal fade" id="delegatedModal">
+            <div class="modal-dialog modal-lg" role="dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delegated Queries</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row container-fluid">
+													<div class="card-block table-responsive">
+	                          <table class='table table-bordered' id='delegatedQueriesExecuted'>
+															<thead class="thead-inverse">
+																<tr>
+																	<th>Scheduler Id</th>
+																	<th>Query </th>
+																	<th>Endpoint </th>
+																</tr>
+															</thead>
+															<tbody id='delegatedQueriesExecutedBody'>
+																
+															</tbody>
+														</table>
+	                        </div>
                         </div>
                     </div>
                 </div>

@@ -17,3 +17,7 @@ a.btn {
 .vis-item {
     cursor: pointer;
 }
+
+#queriesStatusTable, #queriesStatusTable tr {
+	width: 100%;
+}

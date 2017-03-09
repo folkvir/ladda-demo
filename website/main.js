@@ -13,6 +13,7 @@ let timeline;
 
 let endpoint;
 let queries;
+let queriesWithId;
 let executedQueries;
 let delegationNumber;
 
@@ -62,14 +63,14 @@ function createFoglet(iceServers) {
         },
         deltatime: 1000 * 60 * 15,
         timeout: 1000 * 60 * 60,
-        room: "laddademo",
+        room: "test-laddademo",
         signalingAdress: "https://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol(),
         decoding: (data) => {
-          console.log('*************************************** DECODING ****************************************************');
-          console.log(data);
-          console.log('*************************************** DECODING ****************************************************');
           return JSON.parse(data);
+        },
+				encoding: (data) => {
+          return JSON.stringify(data);
         }
     });
 
@@ -81,13 +82,25 @@ function createFoglet(iceServers) {
         }
     });
 
-    foglet.events.on("ndp-execute", function(message) {
-        // Here, we should receive an event when we start to execute a query
-    });
+		foglet.events.on('ndp-error', function(message) {
+			onQueryError(message);
+		});
 
-    foglet.events.on("ndp-delegate", function(message) {
-        // Here, we should receive an event when we start to delegate a query
-    });
+		foglet.events.on('ndp-timeout', function(message) {
+			onQueryTimeout(message);
+		});
+
+		foglet.events.on('ndp-failed', function(message) {
+			onQueryFailed(message);
+		});
+
+		foglet.events.on('ndp-delegated', function(message) {
+			onQueryDelegated(message);
+		});
+
+		foglet.events.on('ndp-delegated-query-executed', function(message) {
+			onQueryDelegatedExecuted(message);
+		});
 
     foglet.events.on("ndp-answer", function(message) {
       console.log(message);
@@ -99,6 +112,74 @@ function createFoglet(iceServers) {
     });
 
     neighboursQueriesExecuted = 0;
+
+		createListeners();
+		clearInterface();
+}
+
+/* create all listeners to create queries status table */
+function createListeners(){
+	$('#queries').on('change', function(){
+		let q = $('#queries').val();
+		try {
+			q = JSON.parse(q);
+		} catch (e) {
+			alert('Queries are not well-formated. Try again ! \n Reason :' + e.toString());
+		}
+	});
+}
+
+function initTableStatus(){
+	let q = queriesWithId;
+	let text = "";
+	let i = 0;
+	q.forEach(p => {
+		text += "<tr class='' id='tr" + p.id + "'> <th scope='row'>" + i + "</th> <td class='statusQuery' id='" + p.id + "' >" + p.query + "</td>" + "<td id='status" + p.id + "'> "+ foglet.delegationProtocol.queryQueue.getStatus(p.id) +" </td> </tr>";
+		++i;
+	});
+
+	$('#statusQueryBody').html(text);
+}
+
+/* listeners */
+function onQueryError(message) {
+	console.log('[LADDA-DEMO] Error query: ', message);
+	alert(message);
+}
+function onQueryTimeout(message) {
+	console.log('[LADDA-DEMO] Timeout query: ', message);
+	findQuery(message, 'bg-danger');
+}
+function onQueryFailed(message) {
+	console.log('[LADDA-DEMO] Failed query: ', message);
+	findQuery(message, 'bg-danger');
+}
+function onQueryDelegated(message) {
+	console.log('[LADDA-DEMO] Delegated query: ', message);
+	findQuery(message, 'bg-warning');
+}
+function onQueryDelegatedExecuted(message) {
+	console.log('[LADDA-DEMO] Delegated query executed: ', message);
+	$('#delegatedQueriesExecutedBody').append("<tr> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
+}
+
+function findQuery(query, type){
+	$('#tr'+query.qId).removeClass();
+	$('#tr'+query.qId).addClass(type);
+	const status = foglet.delegationProtocol.queryQueue.getStatus(query.qId);
+	$('#status'+query.qId).html(foglet.delegationProtocol.queryQueue.getStatus(query.qId));
+}
+
+
+
+/* show or hide table */
+function showQueriesArea() {
+	$('#queries-status').hide();
+	$('#queries-area').show();
+}
+function showQueryStatus() {
+	$('#queries-area').hide();
+	$('#queries-status').show();
 }
 
 /* Create the timeline */
@@ -120,10 +201,9 @@ function createTimeline() {
 
 /* Send the queries */
 function sendQueries() {
-
     clearInterface();
     createTimeline();
-
+		showQueryStatus();
     endpoint = $('#endpoint').val();
     delegationNumber = $('#delegation_number').val();
     queries = JSON.parse($('#queries').val());
@@ -138,14 +218,15 @@ function sendQueries() {
     cumulatedExecutionTime = vis.moment.duration();
 
     foglet.send(queries, endpoint);
-
+		queriesWithId = foglet.delegationProtocol.queryQueue.queries.toJS();
+		initTableStatus();
     $('#send_queries').addClass("disabled");
 }
 
 /* Update neighbours count */
 function updateNeighboursCount() {
     // TO DO: Understand why it never changes...
-    $('#neighbours_count').html(foglet.getNeighbours().length);
+    $('#neighbours_count').html(foglet.getAllNeighbours().length);
 }
 
 /* Executed when the foglet is connected */
@@ -165,7 +246,8 @@ function onReceiveRequest(id, message) {
 
 /* Executed when a Sparql answer is received */
 function onReceiveAnswer(message) {
-
+		console.log('[LADDA-DEMO] Receive answer: ', message);
+		findQuery(message, 'bg-success');
     executedQueries++;
     let start = vis.moment(message.startExecutionTime, "h:mm:ss:SSS");
     let end = vis.moment(message.endExecutionTime, "h:mm:ss:SSS");
@@ -231,6 +313,8 @@ function showTimelogs() {
 }
 
 function clearInterface() {
+		$('#queries-area').show();
+		$('#queries-status').hide();
     $('#global_execution_time').html("--");
     $('#cumulated_execution_time').html("--");
     $('#improvement_ratio').html("--");
@@ -249,4 +333,8 @@ function onItemSelected(item) {
     $('.payload').html(JSON.stringify(item.message.payload, null, 4));
     $("#mymodal").modal('toggle');
 
+}
+
+function modalDelegated(){
+	$("#delegatedModal").modal('toggle');
 }
