@@ -164,7 +164,7 @@ function onQueryDelegatedExecuted(message) {
 	if(message.type === 'failed'){
 		cl = "bg-danger";
 	}
-	$('#delegatedQueriesExecutedBody').append("<tr class='"++"'> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
+	$('#delegatedQueriesExecutedBody').append("<tr class='"+cl+"'> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
 }
 
 function findQuery(query, type){
