@@ -1,6 +1,11 @@
 const NDP = require("foglet-ndp").NDP;
 const LaddaProtocol = require("foglet-ndp").LaddaProtocol;
 
+const defaultQuery = [
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } LIMIT 500",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 1000 LIMIT 500",
+   " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 2000 LIMIT 500"
+];
 
 let spray;
 let foglet;
@@ -39,7 +44,9 @@ $(document).ready(function() {
                 iceServers = response.d.iceServers;
             }
 
-            createFoglet(iceServers);
+            console.log({ urls : iceServers[0] });
+
+            createFoglet({ urls : iceServers[0] });
         }
     });
 
@@ -48,16 +55,22 @@ $(document).ready(function() {
 /* Create foglet and initiate connection */
 function createFoglet(iceServers) {
     foglet = new NDP({
-        protocol: "sprayExample",
+        protocol: "laddademo",
         webrtc: {
-            trickle: true,
+            trickle: false,
             iceServers: iceServers
         },
         deltatime: 1000 * 60 * 15,
         timeout: 1000 * 60 * 60,
-        room: "sparqldistribution",
+        room: "laddademo",
         signalingAdress: "https://signaling.herokuapp.com/",
-        delegationProtocol: new LaddaProtocol()
+        delegationProtocol: new LaddaProtocol(),
+        decoding: (data) => {
+          console.log('*************************************** DECODING ****************************************************');
+          console.log(data);
+          console.log('*************************************** DECODING ****************************************************');
+          return JSON.parse(data);
+        }
     });
 
     foglet.init();
@@ -228,10 +241,12 @@ function clearInterface() {
 
 function onItemSelected(item) {
     $('#item').show();
-    $('#item .qId').html(item.message.qId);
-    $('#item .id').html(item.message.id);
-    $('#item .query').html(item.message.query);
-    $('#item .started_at').html(item.message.startExecutionTime);
-    $('#item .ended_at').html(item.message.endExecutionTime);
-    $('#item .payload').html(JSON.stringify(item.message.payload, null, 4));
+    $('.qId').html(item.message.qId);
+    $('.id').html(item.message.id);
+    $('.query').html(item.message.query);
+    $('.started_at').html(item.message.startExecutionTime);
+    $('.ended_at').html(item.message.endExecutionTime);
+    $('.payload').html(JSON.stringify(item.message.payload, null, 4));
+    $("#mymodal").modal('toggle');
+
 }
