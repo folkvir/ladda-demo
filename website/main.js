@@ -160,7 +160,11 @@ function onQueryDelegated(message) {
 }
 function onQueryDelegatedExecuted(message) {
 	console.log('[LADDA-DEMO] Delegated query executed: ', message);
-	$('#delegatedQueriesExecutedBody').append("<tr> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
+	let cl = "bg-success";
+	if(message.type === 'failed'){
+		cl = "bg-danger";
+	}
+	$('#delegatedQueriesExecutedBody').append("<tr class='"++"'> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
 }
 
 function findQuery(query, type){
