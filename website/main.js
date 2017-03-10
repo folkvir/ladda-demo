@@ -288,6 +288,10 @@ function onReceiveAnswer(message) {
 		console.log('[LADDA-DEMO] Receive answer: ', message);
 		findQuery(message, 'bg-ok');
     executedQueries++;
+    const p = executedQueries * 100 / queries.length;
+    $('#statusQueriesExecution').text(p + "%");
+    $('#statusQueriesExecution').attr('aria-valuenow',  p);
+    $('#statusQueriesExecution').css('width',  p + "%");
     let start = vis.moment(message.startExecutionTime, "h:mm:ss:SSS");
     let end = vis.moment(message.endExecutionTime, "h:mm:ss:SSS");
     cumulatedExecutionTime.add(vis.moment.duration(end.diff(start)));
