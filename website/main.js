@@ -115,6 +115,10 @@ function createFoglet(iceServers) {
 
 		createListeners();
 		clearInterface();
+
+    setTimeout( () => {
+      updateNeighboursCount();
+    }, 5000);
 }
 
 /* create all listeners to create queries status table */
@@ -153,6 +157,12 @@ function onQueryTimeout(message) {
 function onQueryFailed(message) {
 	console.log('[LADDA-DEMO] Failed query: ', message);
 	findQuery(message, 'bg-danger');
+  console.log('[LADDA-DEMO] Delegated query executed: ', message);
+	let cl = "bg-success";
+	if(message.type === 'failed'){
+		cl = "bg-danger";
+	}
+	$('#delegatedQueriesExecutedBody').append("<tr class='"+cl+"'> <th>"+message.id+"</th> <th>"+message.payload+"</th> <th>"+message.endpoint+"</th> </tr>");
 }
 function onQueryDelegated(message) {
 	console.log('[LADDA-DEMO] Delegated query: ', message);
@@ -230,7 +240,22 @@ function sendQueries() {
 /* Update neighbours count */
 function updateNeighboursCount() {
     // TO DO: Understand why it never changes...
-    $('#neighbours_count').html(foglet.getAllNeighbours().length);
+    const neigh = foglet.options.spray.getPeers();
+    console.log(neigh);
+    $('#neighbours_count').html(Math.max(neigh.o.length, neigh.i.length));
+
+    // add neighbours to the timeline
+    // If new peer
+    // neigh.forEach(id => {
+    //   if (!timeline.groupsData.getDataSet().get(id)) {
+    //       // Add a new group
+    //       timeline.groupsData.getDataSet().add({
+    //           id: id,
+    //           title: 'Peer: '+id
+    //       });
+    //   }
+    // });
+
 }
 
 /* Executed when the foglet is connected */
@@ -270,7 +295,7 @@ function onReceiveAnswer(message) {
         // Add a new group
         timeline.groupsData.getDataSet().add({
             id: message.id,
-            title: message.id
+            title: 'Peer: '+message.id
         });
     }
 
