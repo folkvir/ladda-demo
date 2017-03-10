@@ -45,9 +45,9 @@ $(document).ready(function() {
                 iceServers = response.d.iceServers;
             }
 
-            console.log({ urls : iceServers[0] });
+            console.log({ urls : iceServers[0].url });
 
-            createFoglet({ urls : iceServers[0] });
+            createFoglet({ urls : iceServers[0].url });
         }
     });
 
