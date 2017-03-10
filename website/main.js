@@ -57,7 +57,7 @@ $(document).ready(function() {
 
             })
             console.log(ices);
-            createFoglet(iceServers);
+            createFoglet(ices);
         }
     });
 
@@ -68,7 +68,7 @@ function createFoglet(iceServers) {
     foglet = new NDP({
         protocol: "laddademo",
         webrtc: {
-            trickle: false,
+            trickle: true,
             iceServers
         },
         deltatime: 1000 * 60 * 15,
