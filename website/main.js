@@ -162,11 +162,11 @@ function onQueryFailed(message) {
 	if(message.type === 'failed'){
 		cl = "bg-danger";
 	}
-	$('#delegatedQueriesExecutedBody').append("<tr class='"+cl+"'> <th>"+message.id+"</th> <th>"+message.payload+"</th> <th>"+message.endpoint+"</th> </tr>");
+	$('#delegatedQueriesExecutedBody').append("<tr> <th class='"+cl+"'>"+message.id+"</th> <th class='"+cl+"'>"+message.payload+"</th> <th class='"+cl+"'>"+message.endpoint+"</th> </tr>");
 }
 function onQueryDelegated(message) {
 	console.log('[LADDA-DEMO] Delegated query: ', message);
-	findQuery(message, 'bg-warning');
+	findQuery(message, 'bg-delegated');
 }
 function onQueryDelegatedExecuted(message) {
 	console.log('[LADDA-DEMO] Delegated query executed: ', message);
@@ -174,12 +174,12 @@ function onQueryDelegatedExecuted(message) {
 	if(message.type === 'failed'){
 		cl = "bg-danger";
 	}
-	$('#delegatedQueriesExecutedBody').append("<tr class='"+cl+"'> <th>"+message.schedulerId+"</th> <th>"+message.query+"</th> <th>"+message.endpoint+"</th> </tr>");
+	$('#delegatedQueriesExecutedBody').append("<tr> <th class='"+cl+"'>"+message.schedulerId+"</th> <th class='"+cl+"'>"+message.query+"</th> <th class='"+cl+"'>"+message.endpoint+"</th> </tr>");
 }
 
 function findQuery(query, type){
-	$('#tr'+query.qId).removeClass();
-	$('#tr'+query.qId).addClass(type);
+	$('#tr'+query.qId + ' td, #tr'+query.qId + ' th').removeClass();
+	$('#tr'+query.qId + ' td, #tr'+query.qId + ' th').addClass(type);
 	const status = foglet.delegationProtocol.queryQueue.getStatus(query.qId);
 	$('#status'+query.qId).html(foglet.delegationProtocol.queryQueue.getStatus(query.qId));
 }
@@ -276,7 +276,7 @@ function onReceiveRequest(id, message) {
 /* Executed when a Sparql answer is received */
 function onReceiveAnswer(message) {
 		console.log('[LADDA-DEMO] Receive answer: ', message);
-		findQuery(message, 'bg-success');
+		findQuery(message, 'bg-ok');
     executedQueries++;
     let start = vis.moment(message.startExecutionTime, "h:mm:ss:SSS");
     let end = vis.moment(message.endExecutionTime, "h:mm:ss:SSS");

@@ -21,3 +21,11 @@ a.btn {
 #queriesStatusTable, #queriesStatusTable tr {
 	width: 100%;
 }
+
+table td.bg-ok, table th.bg-ok{
+  background-color: #AFDE97;
+}
+
+table td.bg-delegated, table th.bg-delegated{
+  background-color: orange;
+}
