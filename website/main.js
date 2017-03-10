@@ -57,7 +57,7 @@ $(document).ready(function() {
 
             })
             console.log(ices);
-            createFoglet(ices);
+            createFoglet(iceServers);
         }
     });
 
