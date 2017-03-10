@@ -49,7 +49,12 @@ $(document).ready(function() {
             const ices = [];
             iceServers.forEach(ice => {
               console.log(ice);
-              ices.push({ urls: ice.url });
+              if(ice.credential && ice.username){
+                  ices.push({ urls: ice.url, credential: ice.credential, username: ice.username });
+              } else {
+                  ices.push({ urls: ice.url });
+              }
+
             })
             console.log(ices);
             createFoglet(ices);
