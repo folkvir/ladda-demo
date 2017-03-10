@@ -59,7 +59,7 @@ function createFoglet(iceServers) {
         protocol: "laddademo",
         webrtc: {
             trickle: false,
-            iceServers: iceServers
+            iceServers: [iceServers]
         },
         deltatime: 1000 * 60 * 15,
         timeout: 1000 * 60 * 60,
