@@ -45,9 +45,14 @@ $(document).ready(function() {
                 iceServers = response.d.iceServers;
             }
 
-            console.log({ urls : iceServers[0].url });
-
-            createFoglet({ urls : iceServers[0].url });
+            console.log(iceServers);
+            const ices = [];
+            iceServers.forEach(ice => {
+              console.log(ice);
+              ices.push({ urls: ice.url });
+            })
+            console.log(ices);
+            createFoglet(ices);
         }
     });
 
@@ -59,7 +64,7 @@ function createFoglet(iceServers) {
         protocol: "laddademo",
         webrtc: {
             trickle: false,
-            iceServers: [iceServers]
+            iceServers
         },
         deltatime: 1000 * 60 * 15,
         timeout: 1000 * 60 * 60,
