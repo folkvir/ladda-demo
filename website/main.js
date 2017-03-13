@@ -73,7 +73,7 @@ function createFoglet(iceServers) {
         },
         deltatime: 1000 * 5,
         timeout: 1000 * 60 * 60,
-        room: "laddademo",
+        room: "laddademo-prod",
         signalingAdress: "https://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol(),
         decoding: (data) => {
