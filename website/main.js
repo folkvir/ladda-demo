@@ -71,9 +71,9 @@ function createFoglet(iceServers) {
             trickle: true,
             iceServers
         },
-        deltatime: 1000 * 60 * 15,
+        deltatime: 1000 * 5,
         timeout: 1000 * 60 * 60,
-        room: "test-laddademo",
+        room: "laddademo",
         signalingAdress: "https://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol(),
         decoding: (data) => {
@@ -117,6 +117,16 @@ function createFoglet(iceServers) {
         onReceiveAnswer(message);
     });
 
+    foglet.on('shuffling', (reason) => {
+      foglet._flog(reason);
+    });
+
+    foglet.on('connected', () => {
+      setTimeout(() => {
+        updateNeighboursCount();
+      }, 5000);
+    });
+
     foglet.connection().then(function(s) {
         onFogletConnected();
     });
@@ -126,9 +136,6 @@ function createFoglet(iceServers) {
 		createListeners();
 		clearInterface();
 
-    setTimeout( () => {
-      updateNeighboursCount();
-    }, 5000);
 }
 
 /* create all listeners to create queries status table */
@@ -244,7 +251,7 @@ function sendQueries() {
     foglet.send(queries, endpoint);
 		queriesWithId = foglet.delegationProtocol.queryQueue.queries.toJS();
 		initTableStatus();
-    $('#send_queries').addClass("disabled");
+    $('.send_queries').addClass("disabled");
 }
 
 /* Update neighbours count */
@@ -272,7 +279,7 @@ function updateNeighboursCount() {
 function onFogletConnected() {
     console.log("You are now connected!");
     updateNeighboursCount();
-    $('#send_queries').removeClass("disabled");
+    $('.send_queries').removeClass("disabled");
 }
 
 /* Executed when a Sparql query is received to be executed */
@@ -298,7 +305,7 @@ function onReceiveAnswer(message) {
 
     // If last query
     if (executedQueries == queries.length) {
-        $('#send_queries').removeClass("disabled");
+        $('.send_queries').removeClass("disabled");
         globalExecutionTime = vis.moment.duration(vis.moment(new Date()).diff(globalStartTime));
         improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
         showTimelogs();
@@ -363,7 +370,7 @@ function clearInterface() {
     $('#improvement_ratio').html("--");
     $('#timeline').html(" ");
     $('#item').hide();
-    $('#send_queries').addClass("disabled");
+    $('.send_queries').addClass("disabled");
 }
 
 function onItemSelected(item) {

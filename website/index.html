@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <title>Ladda Foglet Demo</title>
+        <title>Ladda Demo</title>
 
         <meta charset="utf-8">
 
@@ -27,47 +27,37 @@
     <body>
         <nav class="navbar">
             <h1 class="text-center">
-                Ladda Foglet Demo
+                Ladda Demo
                 <a href="https://github.com/folkvir/ladda-demo" class="float-right" target="_blank">
                     <img src="/website/logo-github.png" title="Find us on github">
                 </a>
             </h1>
         </nav>
         <br/>
-        <div class="row container-fluid">
-          <div class="col-4">
-              <h5>Global execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="global_execution_time">---</span></h5>
-          </div>
-          <div class="col-4">
-              <h5>Cumulated execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="cumulated_execution_time">---</span></h5>
-          </div>
-          <div class="col-4">
-              <h5>Improvement ratio:&nbsp;&nbsp;&nbsp;&nbsp;<span id="improvement_ratio">---</span></h5>
-          </div>
-          <div class='col-12'>
-            <form class="form-inline">
-              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
-                <label> <b> Queries from neighbors received: </b>&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span>&nbsp;&nbsp;<a href='#' onclick='modalDelegated()'> (show) </a> </label>
-              </div>
-              <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
-                <div class="input-group-addon"> Endpoint </div>
-                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
-              </div>
-              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
-                <div class="input-group-addon"> Delegation number </div>
-                <input type="number" class="form-control" id="delegation_number" value="2">
-              </div>
-              <a id="send_queries" class="btn btn-success float-right disabled" onclick="sendQueries()">Execute queries</a>
-            </form>
-          </div>
-        </div>
-        <br>
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <h3>Timeline (#Neighbors: <span id='neighbours_count')> </span>)</h3>
+                    <h3 class="float-left">Timeline (#Neighbors: <span id='neighbours_count')> </span>)</h3>
+                    <div class="float-right">
+                      <label> <b> Remote queries: </b>&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span>&nbsp;&nbsp;<a href='#' onclick='modalDelegated()'> (show) </a> </label>
+                    </div>
                 </div>
                 <div class="card-block">
+                    <div class="row container-fluid">
+                      <div class="col-3">
+                          <h5>Global execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="global_execution_time">---</span></h5>
+                      </div>
+                      <div class="col-3">
+                          <h5>Cumulated execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="cumulated_execution_time">---</span></h5>
+                      </div>
+                      <div class="col-3">
+                          <h5>Improvement ratio:&nbsp;&nbsp;&nbsp;&nbsp;<span id="improvement_ratio">---</span></h5>
+                      </div>
+                      <div class="col-3">
+                          <h5>Overhead:&nbsp;&nbsp;&nbsp;&nbsp;<span id="overhead">---</span></h5>
+                      </div>
+                    </div>
+                    <hr/>
                     <div id="timeline"></div>
                 </div>
             </div>
@@ -76,7 +66,19 @@
                 <div class="col-12" id='queries-area'>
                     <div class="card">
                         <div class="card-header">
-                            <h3>Queries <a href='#' onclick='showQueryStatus()'>(status)</a></h3>
+                            <h3 class="float-left">Queries <a href='#' onclick='showQueryStatus()'>(status)</a></h3>
+
+                            <form class="form-inline float-right">
+                              <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
+                                <div class="input-group-addon"> Server </div>
+                                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
+                              </div>
+                              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
+                                <div class="input-group-addon"> Delegation number </div>
+                                <input type="number" class="form-control" id="delegation_number" value="2">
+                              </div>
+                              <button class="send_queries btn btn-success float-right disabled" onclick="sendQueries()">Execute queries</button>
+                            </form>
                         </div>
                         <div class="card-block">
                             <textarea id="queries" class="form-control" style="min-height: 300px;">[
@@ -97,13 +99,28 @@
 								<div class="col-12" id='queries-status'>
                     <div class="card">
                         <div class="card-header">
-                            <h3>Status <a href='#' onclick='showQueriesArea()'>(queries) </a></h3>
-                            <div class="progress">
-                              <div class="progress-bar" role="progressbar" aria-valuenow="0"
-                              aria-valuemin="0" aria-valuemax="100" style="width:0%" id='statusQueriesExecution'>
-                                0%
+                            <div class="float-left">
+                              <h3 class="">Status <a href='#' onclick='showQueriesArea()'>(queries) </a></h3>
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="0"
+                                aria-valuemin="0" aria-valuemax="100" style="width:0%" id='statusQueriesExecution'>
+                                  0%
+                                </div>
                               </div>
                             </div>
+
+                            <form class="form-inline float-right">
+                              <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
+                                <div class="input-group-addon"> Server </div>
+                                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
+                              </div>
+                              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
+                                <div class="input-group-addon"> Delegation number </div>
+                                <input type="number" class="form-control" id="delegation_number" value="2">
+                              </div>
+                              <a class="send_queries btn btn-success float-right disabled" onclick="sendQueries()">Execute queries</a>
+                            </form>
+
                         </div>
                         <div class="card-block table-responsive">
                           <table class='table table-bordered' id='queriesStatusTable'>
