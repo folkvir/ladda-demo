@@ -13,6 +13,8 @@ let timeline;
 
 let endpoint;
 let queries;
+let peers;
+let answers = {};
 let queriesWithId;
 let executedQueries;
 let delegationNumber;
@@ -20,6 +22,7 @@ let delegationNumber;
 let globalStartTime;
 let globalExecutionTime;
 let cumulatedExecutionTime;
+let overhead;
 let improvementRatio;
 
 let neighboursQueriesExecuted;
@@ -114,7 +117,8 @@ function createFoglet(iceServers) {
 
     foglet.events.on("ndp-answer", function(message) {
       console.log(message);
-        onReceiveAnswer(message);
+      answers[message.qId] = message;
+      onReceiveAnswer(message);
     });
 
     foglet.on('shuffling', (reason) => {
@@ -260,19 +264,6 @@ function updateNeighboursCount() {
     const neigh = foglet.options.spray.getPeers();
     console.log(neigh);
     $('#neighbours_count').html(Math.max(neigh.o.length, neigh.i.length));
-
-    // add neighbours to the timeline
-    // If new peer
-    // neigh.forEach(id => {
-    //   if (!timeline.groupsData.getDataSet().get(id)) {
-    //       // Add a new group
-    //       timeline.groupsData.getDataSet().add({
-    //           id: id,
-    //           title: 'Peer: '+id
-    //       });
-    //   }
-    // });
-
 }
 
 /* Executed when the foglet is connected */
@@ -305,27 +296,35 @@ function onReceiveAnswer(message) {
 
     // If last query
     if (executedQueries == queries.length) {
-        $('.send_queries').removeClass("disabled");
-        globalExecutionTime = vis.moment.duration(vis.moment(new Date()).diff(globalStartTime));
-        improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
-        showTimelogs();
+        computeStats(cumulatedExecutionTime);
     }
 
     // If new peer
     if (!timeline.groupsData.getDataSet().get(message.id)) {
         // Add a new group
-        timeline.groupsData.getDataSet().add({
+        if(message.id !== 'me'){
+          timeline.groupsData.getDataSet().add({
+              id: message.id,
+              title: 'Neighbor '+message.id,
+              content: 'Neighbor: '+(peers+1)
+          });
+          peers++;
+        } else {
+          timeline.groupsData.getDataSet().add({
             id: message.id,
-            title: 'Peer: '+message.id
-        });
+            title: 'Neighbor '+message.id,
+          });
+        }
     }
 
+    const queryIndex = _.findIndex(queriesWithId, (obj) => obj.id === message.qId);
+    const queryTitle = queryIndex;
     // Add a new item
     timeline.itemsData.add({
         id: message.qId,
         group: message.id,
         title: message.payload.length+" results",
-        content: message.qId,
+        content: ''+queryTitle,
         start: start,
         end: end,
         message: message
@@ -336,6 +335,55 @@ function onReceiveAnswer(message) {
         start: timeline.getItemRange().min,
         end: timeline.getItemRange().max
     });
+
+    $('.send_queries').removeClass('disabled');
+}
+
+function computeStats(cumulatedExecutionTime){
+  const values = _.mapValues(answers, (val) => {
+    console.log(val);
+    const start = vis.moment(val.startExecutionTime, "h:mm:ss:SSS"), end = vis.moment(val.endExecutionTime, "h:mm:ss:SSS");
+    const sendStart = vis.moment(val.sendQueryTime, "h:mm:ss:SSS"), sendEnd = vis.moment(val.receiveQueryTime, "h:mm:ss:SSS");
+    const receiveStart = vis.moment(val.sendResultsTime, "h:mm:ss:SSS"), receiveEnd = vis.moment(val.receiveResultsTime, "h:mm:ss:SSS");
+    const overheadStart = vis.moment.duration(sendEnd.diff(sendStart)),
+      overheadEnd = vis.moment.duration(receiveEnd.diff(receiveStart));
+    return { start, end, overhead: overheadStart.add(overheadEnd)};
+  });
+  console.log(values);
+  const startArray = Object.keys(values).map(function(key) {
+      return values[key].start;
+  });
+  const endArray = Object.keys(values).map(function(key) {
+      return values[key].end;
+  });
+  const min = vis.moment.min(startArray),
+    max = vis.moment.max(endArray);
+
+  // global execution time Q1.start to Qn.end
+  globalExecutionTime = vis.moment.duration(max.diff(min));
+
+
+  // cumulatedExecutionTime
+  const durationArray = Object.keys(values).map(function(key) {
+    return vis.moment.duration(values[key].end.diff(values[key].start));
+  });
+  cumulatedExecutionTime = _.reduce(durationArray, function(sum, n) {
+    return sum.add(n);
+  }, vis.moment.duration('0:0:0'));
+
+
+  // Overhead total
+  const overheadArray = Object.keys(values).map(function(key) {
+    return vis.moment.duration(values[key].overhead);
+  });
+  console.log('Overhead:', overheadArray);
+  overhead = _.reduce(overheadArray, function(sum, n) {
+    return sum.add(n);
+  }, vis.moment.duration('0:0:0'));
+
+
+  improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
+  showTimelogs();
 }
 
 function showTimelogs() {
@@ -347,8 +395,7 @@ function showTimelogs() {
         globalExecutionTime.seconds()+
         ","+
         ("000"+globalExecutionTime.milliseconds())
-            .substr((""+globalExecutionTime.milliseconds()).length)
-    );
+            .substr((""+globalExecutionTime.milliseconds()).length)+ '(s)');
     $('#cumulated_execution_time').html(
         cumulatedExecutionTime.hours()+
         ":"+
@@ -357,12 +404,21 @@ function showTimelogs() {
         cumulatedExecutionTime.seconds()+
         ","+
         ("000"+cumulatedExecutionTime.milliseconds())
-            .substr((""+cumulatedExecutionTime.milliseconds()).length)
-    );
+            .substr((""+cumulatedExecutionTime.milliseconds()).length)+ '(s)');
     $('#improvement_ratio').html(improvementRatio);
+    $('#overhead').html(overhead.hours()+
+    ":"+
+    overhead.minutes()+
+    ":"+
+    overhead.seconds()+
+    ","+
+    ("000"+overhead.milliseconds())
+        .substr((""+overhead.milliseconds()).length) + '(s)');
 }
 
 function clearInterface() {
+    answers = {};
+    peers = 0;
 		$('#queries-area').show();
 		$('#queries-status').hide();
     $('#global_execution_time').html("--");
