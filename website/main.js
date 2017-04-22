@@ -22,8 +22,8 @@ let executedQueries;
 let delegationNumber;
 
 let globalStartTime;
-let globalExecutionTime;
-let cumulatedExecutionTime;
+let globalExecutionTime, globalExec = 0;
+let cumulatedExecutionTime, cumulExec = 0;
 let overhead;
 let improvementRatio;
 
@@ -222,7 +222,8 @@ function createTimeline() {
 }
 
 /* Send the queries */
-function sendQueries() {
+function sendQueries(timeout) {
+		if(!timeout) foglet.delegationProtocol.timeout = 5 * 1000;
     clearInterface();
     createTimeline();
 		showQueryStatus();
@@ -235,6 +236,8 @@ function sendQueries() {
     foglet.delegationProtocol.nbDestinations = delegationNumber;
 
     // Initialize variables
+    globalExec = 0;
+		cumulExec = 0;
     executedQueries = 0;
     globalStartTime = vis.moment(new Date());
     cumulatedExecutionTime = vis.moment.duration();
@@ -279,6 +282,10 @@ function onReceiveAnswer(message) {
     $('#statusQueriesExecution').css('width',  p + "%");
     let start = vis.moment(message.startExecutionTime, "h:mm:ss:SSS");
     let end = vis.moment(message.endExecutionTime, "h:mm:ss:SSS");
+
+		globalExec += message.globalExecutionTime;
+		cumulExec += message.executionTime;
+
     cumulatedExecutionTime.add(vis.moment.duration(end.diff(start)));
 
     // If last query
@@ -326,7 +333,20 @@ function onReceiveAnswer(message) {
     $('.send_queries').removeClass('disabled');
 }
 
+function computeStats(){
+	cumulatedExecutionTime = vis.moment.duration(cumulExec);
+	globalExecutionTime = vis.moment.duration(globalExec);
+	// Overhead total
+	overhead = vis.moment.duration(globalExec - cumulExec);
+
+
+	improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
+	showTimelogs();
+}
+
+/*
 function computeStats(cumulatedExecutionTime){
+
   const values = _.mapValues(answers, (val) => {
     console.log(val);
     const start = vis.moment(val.startExecutionTime, "h:mm:ss:SSS"), end = vis.moment(val.endExecutionTime, "h:mm:ss:SSS");
@@ -371,7 +391,7 @@ function computeStats(cumulatedExecutionTime){
 
   improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
   showTimelogs();
-}
+}*/
 
 function showTimelogs() {
     $('#global_execution_time').html(

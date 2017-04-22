@@ -4,7 +4,8 @@
   "description": "Ladda demo",
   "main": "http-server.js",
   "scripts": {
-    "start": "DEBUG=ladda node http-server.js"
+    "start": "DEBUG=ladda node http-server.js",
+		"wstart": "node http-server.js"
   },
   "repository": {
     "type": "git",
