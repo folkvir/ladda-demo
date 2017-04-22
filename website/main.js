@@ -1,6 +1,8 @@
 const NDP = require("foglet-ndp").NDP;
 const LaddaProtocol = require("foglet-ndp").LaddaProtocol;
 
+localStorage.debug = 'foglet-*';
+
 const defaultQuery = [
    " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } LIMIT 500",
    " PREFIX wd: <http://www.wikidata.org/entity/> SELECT * WHERE { ?s ?p wd:Q142. ?s ?p ?o . } OFFSET 1000 LIMIT 500",
@@ -33,21 +35,12 @@ $(document).ready(function() {
     /* Haven't spent time on this ajax stuff,
         We should probably change some settings. */
     $.ajax({
-        url : "https://service.xirsys.com/ice",
-        data : {
-            ident: "folkvir",
-            secret: "a0fe3e18-c9da-11e6-8f98-9ac41bd47f24",
-            domain: "foglet-examples.herokuapp.com",
-            application: "foglet-examples",
-            room: "sparqldistribution",
-            secure: 1
-        },
+        url : "/ice",
         success: function(response, status) {
             let iceServers;
-            if (response.d.iceServers) {
-                iceServers = response.d.iceServers;
+            if (response.ice) {
+                iceServers = response.ice;
             }
-
             console.log(iceServers);
             const ices = [];
             iceServers.forEach(ice => {
@@ -57,13 +50,11 @@ $(document).ready(function() {
               } else {
                   ices.push({ urls: ice.url });
               }
-
             })
             console.log(ices);
             createFoglet(ices);
         }
     });
-
 });
 
 /* Create foglet and initiate connection */
@@ -95,34 +86,30 @@ function createFoglet(iceServers) {
         }
     });
 
-		foglet.events.on('ndp-error', function(message) {
+		foglet.delegationProtocol.on('ndp-error', function(message) {
 			onQueryError(message);
 		});
 
-		foglet.events.on('ndp-timeout', function(message) {
+		foglet.delegationProtocol.on('ndp-timeout', function(message) {
 			onQueryTimeout(message);
 		});
 
-		foglet.events.on('ndp-failed', function(message) {
+		foglet.delegationProtocol.on('ndp-failed', function(message) {
 			onQueryFailed(message);
 		});
 
-		foglet.events.on('ndp-delegated', function(message) {
+		foglet.delegationProtocol.on('ndp-delegated', function(message) {
 			onQueryDelegated(message);
 		});
 
-		foglet.events.on('ndp-delegated-query-executed', function(message) {
+		foglet.delegationProtocol.on('ndp-delegated-query-executed', function(message) {
 			onQueryDelegatedExecuted(message);
 		});
 
-    foglet.events.on("ndp-answer", function(message) {
+    foglet.delegationProtocol.on("ndp-answer", function(message) {
       console.log(message);
       answers[message.qId] = message;
       onReceiveAnswer(message);
-    });
-
-    foglet.on('shuffling', (reason) => {
-      foglet._flog(reason);
     });
 
     foglet.on('connected', () => {
@@ -261,16 +248,16 @@ function sendQueries() {
 /* Update neighbours count */
 function updateNeighboursCount() {
     // TO DO: Understand why it never changes...
-    const neigh = foglet.options.spray.getPeers();
+    const neigh = foglet.getNeighbours();
     console.log(neigh);
-    $('#neighbours_count').html(Math.max(neigh.o.length, neigh.i.length));
+    $('#neighbours_count').html(neigh.length);
 }
 
 /* Executed when the foglet is connected */
 function onFogletConnected() {
     console.log("You are now connected!");
     updateNeighboursCount();
-    $('.send_queries').removeClass("disabled");
+		$('.send_queries').removeClass("disabled");
 }
 
 /* Executed when a Sparql query is received to be executed */
