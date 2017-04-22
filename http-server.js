@@ -5,7 +5,7 @@ var http = require('http').Server(app);
 var cors = require('cors');
 var port = process.env.PORT || 3000;
 var fs = require('fs');
-var debug = require('debug')('ladda-demo');
+var debug = require('debug')('ladda');
 
 app.use(cors());
 
