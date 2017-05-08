@@ -543,7 +543,7 @@ function updateChart(executionObject){
   if(find < 0){
     let newDataset = getNewDataset();
     newDataset.id = id;
-    newDataset.label = `EC/D${executionObject.delegationNumber}/Q${executionObject.queriesNumber}`
+    newDataset.label = `ExecutionTime/D${executionObject.delegationNumber}/Q${executionObject.queriesNumber}`
     chart.data.datasets.push(newDataset);
   }
 
