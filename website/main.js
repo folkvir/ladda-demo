@@ -1,6 +1,7 @@
 const NDP = require("foglet-ndp").NDP;
 const LaddaProtocol = require("foglet-ndp").LaddaProtocol;
 
+
 localStorage.debug = 'foglet-*';
 
 const defaultQuery = [
@@ -12,6 +13,7 @@ const defaultQuery = [
 let spray;
 let foglet;
 let timeline;
+let workloadId = 0;
 
 let endpoint;
 let queries;
@@ -107,9 +109,11 @@ function createFoglet(iceServers) {
 		});
 
     foglet.delegationProtocol.on("ndp-answer", function(message) {
-      console.log(message);
-      answers[message.qId] = message;
-      onReceiveAnswer(message);
+      if(!answers[message.qId]){
+        console.log(message);
+        answers[message.qId] = message;
+        onReceiveAnswer(message);
+      }
     });
 
     foglet.on('connected', () => {
@@ -135,6 +139,7 @@ function createListeners(){
 		let q = $('#queries').val();
 		try {
 			q = JSON.parse(q);
+      workloadId++;
 		} catch (e) {
 			alert('Queries are not well-formated. Try again ! \n Reason :' + e.toString());
 		}
@@ -198,10 +203,14 @@ function findQuery(query, type){
 function showQueriesArea() {
 	$('#queries-status').hide();
 	$('#queries-area').show();
+  $('#btnShowStatus').show();
+  $('#btnShowQueries').hide();
 }
 function showQueryStatus() {
 	$('#queries-area').hide();
 	$('#queries-status').show();
+  $('#btnShowStatus').hide();
+  $('#btnShowQueries').show();
 }
 
 /* Create the timeline */
@@ -223,12 +232,12 @@ function createTimeline() {
 
 /* Send the queries */
 function sendQueries(timeout) {
-		if(!timeout) foglet.delegationProtocol.timeout = 5 * 1000;
+		if(!timeout) foglet.delegationProtocol.timeout = 60 * 1000;
     clearInterface();
     createTimeline();
 		showQueryStatus();
     endpoint = $('#endpoint').val();
-    delegationNumber = $('#delegation_number').val();
+    delegationNumber = eval($('#delegation_number').val());
     queries = JSON.parse($('#queries').val());
 
     updateNeighboursCount();
@@ -291,6 +300,13 @@ function onReceiveAnswer(message) {
     // If last query
     if (executedQueries == queries.length) {
         computeStats(cumulatedExecutionTime);
+        updateChart({
+          id: workloadId,
+          name: 'Experiment #'+ experiments ,
+          delegationNumber: foglet.delegationProtocol.nbDestinations,
+          queriesNumber: executedQueries,
+          executionTime: globalExec
+        });
     }
 
     // If new peer
@@ -331,6 +347,7 @@ function onReceiveAnswer(message) {
     });
 
     $('.send_queries').removeClass('disabled');
+
 }
 
 function computeStats(){
@@ -343,55 +360,6 @@ function computeStats(){
 	improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
 	showTimelogs();
 }
-
-/*
-function computeStats(cumulatedExecutionTime){
-
-  const values = _.mapValues(answers, (val) => {
-    console.log(val);
-    const start = vis.moment(val.startExecutionTime, "h:mm:ss:SSS"), end = vis.moment(val.endExecutionTime, "h:mm:ss:SSS");
-    const sendStart = vis.moment(val.sendQueryTime, "h:mm:ss:SSS"), sendEnd = vis.moment(val.receiveQueryTime, "h:mm:ss:SSS");
-    const receiveStart = vis.moment(val.sendResultsTime, "h:mm:ss:SSS"), receiveEnd = vis.moment(val.receiveResultsTime, "h:mm:ss:SSS");
-    const overheadStart = vis.moment.duration(sendEnd.diff(sendStart)),
-      overheadEnd = vis.moment.duration(receiveEnd.diff(receiveStart));
-    return { start, end, overhead: overheadStart.add(overheadEnd)};
-  });
-  console.log(values);
-  const startArray = Object.keys(values).map(function(key) {
-      return values[key].start;
-  });
-  const endArray = Object.keys(values).map(function(key) {
-      return values[key].end;
-  });
-  const min = vis.moment.min(startArray),
-    max = vis.moment.max(endArray);
-
-  // global execution time Q1.start to Qn.end
-  globalExecutionTime = vis.moment.duration(max.diff(min));
-
-
-  // cumulatedExecutionTime
-  const durationArray = Object.keys(values).map(function(key) {
-    return vis.moment.duration(values[key].end.diff(values[key].start));
-  });
-  cumulatedExecutionTime = _.reduce(durationArray, function(sum, n) {
-    return sum.add(n);
-  }, vis.moment.duration('0:0:0'));
-
-
-  // Overhead total
-  const overheadArray = Object.keys(values).map(function(key) {
-    return vis.moment.duration(values[key].overhead);
-  });
-  console.log('Overhead:', overheadArray);
-  overhead = _.reduce(overheadArray, function(sum, n) {
-    return sum.add(n);
-  }, vis.moment.duration('0:0:0'));
-
-
-  improvementRatio = Math.floor((cumulatedExecutionTime.asMilliseconds() / globalExecutionTime.asMilliseconds())*1000)/1000;
-  showTimelogs();
-}*/
 
 function showTimelogs() {
     $('#global_execution_time').html(
@@ -450,4 +418,143 @@ function onItemSelected(item) {
 
 function modalDelegated(){
 	$("#delegatedModal").modal('toggle');
+}
+
+
+
+
+/**
+ * *************************************************************************
+ * *************************************************************************
+ * *************************************************************************
+ * *************************************************************************
+ */
+
+// structures
+function randomIntFromInterval(min,max)
+{
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+function randomColor(a){
+  let r,g,b;
+  r = randomIntFromInterval(0, 255);
+  g = randomIntFromInterval(0,255);
+  b = randomIntFromInterval(0,255);
+  return `rgba(${r},${g},${b}, ${a})`
+}
+//
+let experiments = 1;
+let datasets = new Map();
+var ctx, chart;
+var defaultDataset = {
+    id: null,
+    label: '',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: "rgba(75,192,192,0.4)",
+    borderColor: "rgba(75,192,192,1)",
+    borderCapStyle: 'butt',
+    borderDash: [],
+    borderDashOffset: 0.0,
+    borderJoinStyle: 'miter',
+    pointBorderColor: "rgba(75,192,192,1)",
+    pointBackgroundColor: "#fff",
+    pointBorderWidth: 1,
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: "rgba(75,192,192,1)",
+    pointHoverBorderColor: "rgba(220,220,220,1)",
+    pointHoverBorderWidth: 2,
+    pointRadius: 1,
+    pointHitRadius: 10,
+    data: [],
+    spanGaps: false,
+};
+
+function getNewDataset(){
+  let newDataset = _.merge({}, defaultDataset)
+  newDataset.backgroundColor = randomColor(0.4);
+  let c = randomColor(1);
+  newDataset.borderColor = c;
+  newDataset.pointBorderColor = c;
+  newDataset.pointHoverBackgroundColor = c;
+  return newDataset;
+}
+
+$(document).ready(function() {
+  initChart();
+});
+
+function statistics_show(){
+  $('#statistics_show').hide();
+  // show/hide buttons
+  $('#statistics_back').show();
+  // show the stats page
+  $('#statisticsPage').show();
+  // hide the main page
+  $('#mainPage').hide();
+}
+
+function statistics_back(){
+  // show/hide buttons
+  $('#statistics_show').show();
+  $('#statistics_back').hide();
+  // hide the stats page
+  $('#statisticsPage').hide();
+  // show the main page
+  $('#mainPage').show();
+}
+
+function initChart(){
+  ctx = $("#xpChart");
+  var data = {
+    labels: [],
+    datasets: []
+  };
+
+  chart = new Chart(ctx, {
+      type: 'line',
+      data: data,
+      options: {
+        responsive: true,
+        multiTooltipTemplate: "<%%=datasetLabel%>: , <%%= value %>",
+        scales: {
+          xAxes: [{
+              type: 'linear',
+              position: 'bottom'
+          }],
+          yAxes: [{
+              ticks: {
+                stacked: true,
+                beginAtZero:true
+              }
+          }]
+        }
+      }
+  });
+}
+
+
+function updateChart(executionObject){
+  let id = executionObject.id+'-'+executionObject.delegationNumber+'-'+executionObject.queriesNumber;
+  if(!datasets.has(id)) datasets.set(id, 0);
+  datasets.set(id, datasets.get(id) + 1);
+
+  let find = _.findIndex(chart.data.datasets, function(o) { return o.id === id;});
+  if(find < 0){
+    let newDataset = getNewDataset();
+    newDataset.id = id;
+    newDataset.label = `EC/D${executionObject.delegationNumber}/Q${executionObject.queriesNumber}`
+    chart.data.datasets.push(newDataset);
+  }
+
+  find = _.findIndex(chart.data.datasets, function(o) { return o.id === id; })
+  //chart.data.labels.push(id);
+  chart.data.datasets[find].data.push({
+    x: datasets.get(id),
+    y:executionObject.executionTime
+  });
+
+  chart.update();
+  experiments++;
+  console.log(executionObject, chart.data.datasets);
 }

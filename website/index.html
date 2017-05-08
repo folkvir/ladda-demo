@@ -1,240 +1,264 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <title>Ladda Demo</title>
+<head>
+  <title>Ladda Demo</title>
 
-        <meta charset="utf-8">
+  <meta charset="utf-8">
 
-        <!-- jQuery -->
-        <script type="text/javascript" src="/node_modules/jquery/dist/jquery.min.js"></script>
+  <!-- jQuery -->
+  <script type="text/javascript" src="/node_modules/jquery/dist/jquery.min.js"></script>
 
-        <!-- Bootstrap -->
-        <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-        <script type="text/javascript" src="/node_modules/tether/dist/js/tether.min.js"></script>
-        <script type="text/javascript" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <script type="text/javascript" src="/node_modules/tether/dist/js/tether.min.js"></script>
+  <script type="text/javascript" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
-        <!-- Foglet-ndp -->
-        <script type="text/javascript" src="/node_modules/foglet-ndp/build/foglet-ndp.bundle.js"> </script>
+  <!-- Foglet-ndp -->
+  <script type="text/javascript" src="/node_modules/foglet-ndp/build/foglet-ndp.bundle.js"> </script>
 
-        <!-- Vis.js -->
-        <link rel="stylesheet" href="/node_modules/vis/dist/vis.css">
-        <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
+  <!-- Foglet-ndp -->
+  <script type="text/javascript" src="/node_modules/chart.js/dist/Chart.bundle.min.js"> </script>
 
-        <!-- lodash -->
-        <script type="text/javascript" src="/node_modules/lodash/lodash.min.js"></script>
+  <!-- Vis.js -->
+  <link rel="stylesheet" href="/node_modules/vis/dist/vis.css">
+  <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
 
-        <!-- Ladda Foglet Demo -->
-        <link rel="stylesheet" href="/website/style.css">
-        <script type="text/javascript" src="/website/main.js"></script>
-    </head>
-    <body>
-        <nav class="navbar">
-            <h1 class="text-center">
-                Ladda Demo
-                <a href="https://github.com/folkvir/ladda-demo" class="float-right" target="_blank">
-                    <img src="/website/logo-github.png" title="Find us on github">
-                </a>
-            </h1>
-        </nav>
-        <br/>
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="float-left">Timeline (#Neighbors: <span id='neighbours_count')> </span>)</h3>
-                    <div class="float-right">
-                      <label> <b> Remote queries: </b>&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span>&nbsp;&nbsp;<a href='#' onclick='modalDelegated()'> (show) </a> </label>
-                    </div>
-                </div>
-                <div class="card-block">
-                    <div class="row container-fluid">
-                      <div class="col-3">
-                          <h5>Global execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="global_execution_time">---</span></h5>
-                      </div>
-                      <div class="col-3">
-                          <h5>Sequential execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="cumulated_execution_time">---</span></h5>
-                      </div>
-                      <div class="col-3">
-                          <h5>Improvement ratio:&nbsp;&nbsp;&nbsp;&nbsp;<span id="improvement_ratio">---</span></h5>
-                      </div>
-                      <div class="col-3">
-                          <h5>Overhead:&nbsp;&nbsp;&nbsp;&nbsp;<span id="overhead">---</span></h5>
-                      </div>
-                    </div>
-                    <hr/>
-                    <div id="timeline"></div>
-                </div>
-            </div>
-            <br/>
-            <div class="row">
-                <div class="col-12" id='queries-area'>
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="float-left">Queries <a href='#' onclick='showQueryStatus()'>(status)</a></h3>
+  <!-- lodash -->
+  <script type="text/javascript" src="/node_modules/lodash/lodash.min.js"></script>
 
-                            <form class="form-inline float-right">
-                              <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
-                                <div class="input-group-addon"> Server </div>
-                                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
-                              </div>
-                              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
-                                <div class="input-group-addon"> Delegation number </div>
-                                <input type="number" class="form-control" id="delegation_number" value="2">
-                              </div>
-                              <a class="send_queries btn btn-success float-right disabled" onclick="sendQueries()">Execute</a>
-                            </form>
-                        </div>
-                        <div class="card-block">
-                            <textarea id="queries" class="form-control" style="min-height: 300px;">[
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Varanasi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Varanasi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Varanasi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shpakovskoye'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shpakovskoye'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shpakovskoye'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Varanasi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Vârânasî'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shpakovskoye'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shpakovskoye'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shpakovskoye'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sirohi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sirohi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sirohi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sivaganga'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sivaganga'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sivaganga'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sivaganga'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sivaganga'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sivaganga'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Goleţ'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Goleţ'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Goleţ'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Goleţ'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Goleţ'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Goleţ'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sirohi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sirohi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sirohi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE {  ?airport a <http://dbpedia.org/ontology/Airport>; rdfs:label ?name. {?airport <http://dbpedia.org/property/iata> 'NRT'@en.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> 'NRT'@en. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
-                            	"PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Vârânasî'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n"
-                            ]</textarea>
-                        </div>
-                    </div>
-                </div>
-								<div class="col-12" id='queries-status'>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="float-left">
-                              <h3 class="">Status <a href='#' onclick='showQueriesArea()'>(queries) </a></h3>
-                              <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="0"
-                                aria-valuemin="0" aria-valuemax="100" style="width:0%" id='statusQueriesExecution'>
-                                  0%
-                                </div>
-                              </div>
-                            </div>
+  <!-- Ladda Foglet Demo -->
+  <link rel="stylesheet" href="/website/style.css">
+  <script type="text/javascript" src="/website/main.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <h1 class="text-center">
+      Ladda Demo
+      <a href="#" class="float-left navbar-left" id='statistics_show' onclick="statistics_show()">
+        <img src="/website/charts32.png" title="See direct statistics about your experiments">
+      </a>
+      <a href="#" style='display:none;' class="float-left navbar-left" id='statistics_back' onclick="statistics_back()">
+        <img src="/website/back32.png" title="Return to the main page">
+      </a>
+      <a href="https://github.com/folkvir/ladda-demo" class="float-right navbar-right" target="_blank">
+        <img src="/website/logo-github.png" title="Find us on github">
+      </a>
+    </h1>
+  </nav>
+  <br/>
 
-                            <form class="form-inline float-right">
-                              <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
-                                <div class="input-group-addon"> Server </div>
-                                <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
-                              </div>
-                              <div class="input-group mb-4 mr-sm-4 mb-sm-0">
-                                <div class="input-group-addon"> Delegation number </div>
-                                <input type="number" class="form-control" id="delegation_number" value="2">
-                              </div>
-                              <a class="send_queries btn btn-success float-right disabled" onclick="sendQueries()">Execute</a>
-                            </form>
-
-                        </div>
-                        <div class="card-block table-responsive">
-                          <table class='table table-bordered' id='queriesStatusTable'>
-														<thead class="thead-inverse">
-															<tr>
-																<th>#</th>
-																<th>Query</th>
-																<th>Status</th>
-															</tr>
-														</thead>
-														<tbody id='statusQueryBody'>
-
-														</tbody>
-													</table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- MAIN PAGE -->
+  <div class="container-fluid" id='mainPage'>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="float-left">Timeline (#Neighbors: <span id='neighbours_count')> </span>)</h3>
+        <div class="float-right">
+          <label> <b> Remote queries: </b>&nbsp;&nbsp;&nbsp;&nbsp;<span id="neighbours_queries_executed">0</span>&nbsp;&nbsp;<a href='#' onclick='modalDelegated()'> (show) </a> </label>
         </div>
-        <div class="modal fade" id="mymodal">
-            <div class="modal-dialog modal-lg" role="dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Query: <span class="qId"></span></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row container-fluid">
-                            <div class="col-3">
-                                Client id:
-                            </div>
-                            <div class="col-9">
-                                <span class="id"></span>
-                            </div>
-                            <div class="col-3">
-                                Started at:
-                            </div>
-                            <div class="col-9">
-                                <span class="started_at"></span>
-                            </div>
-                            <div class="col-3">
-                                Ended at:
-                            </div>
-                            <div class="col-9">
-                                <span class="ended_at"></span>
-                            </div>
-                            <div class="col-3">
-                                Query:
-                            </div>
-                            <div class="col-9">
-                                <span class="query"></span>
-                            </div>
-                            <div class="col-12">
-                                Response:
-                            </div>
-                            <div class="col-12">
-                                <pre class="payload"></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="card-block">
+        <div class="row container-fluid">
+          <div class="col-3">
+            <h5>Global execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="global_execution_time">---</span></h5>
+          </div>
+          <div class="col-3">
+            <h5>Sequential execution time:&nbsp;&nbsp;&nbsp;&nbsp;<span id="cumulated_execution_time">---</span></h5>
+          </div>
+          <div class="col-3">
+            <h5>Improvement ratio:&nbsp;&nbsp;&nbsp;&nbsp;<span id="improvement_ratio">---</span></h5>
+          </div>
+          <div class="col-3">
+            <h5>Overhead:&nbsp;&nbsp;&nbsp;&nbsp;<span id="overhead">---</span></h5>
+          </div>
+        </div>
+        <hr/>
+        <div id="timeline"></div>
+      </div>
+    </div>
+    <br/>
+
+    <div class="card" >
+      <div class="card-header">
+        <h3 class="float-left" id='btnShowStatus'>Queries <a href='#' onclick='showQueryStatus()'>(status)</a></h3>
+        <div class="float-left" id='btnShowQueries' style='display:none'>
+          <h3>Status <a href='#' onclick='showQueriesArea()'>(queries) </a></h3>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%" id='statusQueriesExecution'> 0% </div>
+          </div>
         </div>
 
-				<div class="modal fade" id="delegatedModal">
-            <div class="modal-dialog modal-lg" role="dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Delegated Queries</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row container-fluid">
-													<div class="card-block table-responsive">
-	                          <table class='table table-bordered' id='delegatedQueriesExecuted'>
-															<thead class="thead-inverse">
-																<tr>
-																	<th>Scheduler Id</th>
-																	<th>Query </th>
-																	<th>Endpoint </th>
-																</tr>
-															</thead>
-															<tbody id='delegatedQueriesExecutedBody'>
 
-															</tbody>
-														</table>
-	                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <form class="form-inline float-right">
+          <div class="input-group mb-6 mr-sm-4 mb-sm-0" style='min-width:30%;'>
+            <div class="input-group-addon"> Server </div>
+            <input type="text" class="form-control" id="endpoint" value="https://query.wikidata.org/bigdata/ldf">
+          </div>
+          <div class="input-group mb-4 mr-sm-4 mb-sm-0">
+            <div class="input-group-addon"> Delegation number </div>
+            <input type="number" name="delegation_number" pattern="[0-9]*" class="form-control" id="delegation_number" value="2" />
+          </div>
+          <a class="send_queries btn btn-success float-right disabled" onclick="sendQueries()">Execute</a>
+        </form>
+      </div>
+      <div class="card-block" id='queries-area'>
+        <textarea id="queries" class="form-control" style="min-height: 300px;">[
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Varanasi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Varanasi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Varanasi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shpakovskoye'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shpakovskoye'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shpakovskoye'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Varanasi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Vârânasî'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shpakovskoye'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shpakovskoye'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shpakovskoye'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sirohi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sirohi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sirohi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sivaganga'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sivaganga'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sivaganga'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sivaganga'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sivaganga'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sivaganga'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Goleţ'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Goleţ'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Goleţ'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Goleţ'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Goleţ'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Goleţ'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Sirohi'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Sirohi'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Sirohi'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'en'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Sirohi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@fr.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@fr. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@fr. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE {  ?airport a <http://dbpedia.org/ontology/Airport>; rdfs:label ?name. {?airport <http://dbpedia.org/property/iata> 'NRT'@en.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> 'NRT'@en. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Shiroi'@en.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'en') )}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { {?city rdfs:label 'Shoshone'@en.} UNION { ?alias <http://dbpedia.org/property/redirect> ?city;  rdfs:label 'Shoshone'@en. } UNION { ?alias <http://dbpedia.org/property/disambiguates> ?city;  rdfs:label 'Shoshone'@en. } OPTIONAL { ?city <http://dbpedia.org/ontology/abstract> ?abstract} OPTIONAL { ?city geo:lat ?latitude; geo:long ?longitude}OPTIONAL { ?city foaf:depiction ?image } OPTIONAL { ?city rdfs:label ?name } OPTIONAL { ?city foaf:homepage ?home } OPTIONAL { ?city <http://dbpedia.org/ontology/populationTotal> ?population } OPTIONAL { ?city <http://dbpedia.org/ontology/thumbnail> ?thumbnail } FILTER (langMatches( lang(?abstract), 'fr'))}\n",
+          "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT * WHERE { ?city a <http://dbpedia.org/ontology/Place>; rdfs:label 'Vârânasî'@fr.  ?airport a <http://dbpedia.org/ontology/Airport>. {?airport <http://dbpedia.org/ontology/city> ?city} UNION {?airport <http://dbpedia.org/ontology/location> ?city} UNION {?airport <http://dbpedia.org/property/cityServed> ?city.} UNION {?airport <http://dbpedia.org/ontology/city> ?city. }{?airport <http://dbpedia.org/property/iata> ?iata.} UNION  {?airport <http://dbpedia.org/ontology/iataLocationIdentifier> ?iata. } OPTIONAL { ?airport foaf:homepage ?airport_home. } OPTIONAL { ?airport rdfs:label ?name. } OPTIONAL { ?airport <http://dbpedia.org/property/nativename> ?airport_name.} FILTER ( !bound(?name) || langMatches( lang(?name), 'fr') )}\n"
+          ]</textarea>
         </div>
-    </body>
+
+        <div class="card-block table-responsive" id='queries-status'>
+          <table class='table table-bordered' id='queriesStatusTable'>
+            <thead class="thead-inverse">
+              <tr>
+                <th>#</th>
+                <th>Query</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id='statusQueryBody'>
+
+            </tbody>
+          </table>
+        </div> <!-- end table -->
+      </div>
+  </div> <!-- end mainage -->
+
+  <!-- Statistics page -->
+
+  <div class="container-fluid" id='statisticsPage' style='display:none'>
+    <div class="row">
+      <div class="col-10 offset-1" >
+        <p> Each line represents the successive global execution time (for a same workload of queries) for a specific delegation number and number of queries. </p>
+        <canvas id="xpChart" style='padding-bottom:5s0px'></canvas>
+      </div>
+    </div>
+    <div class="row" style='display:none'>
+      <div class="col-10 offset-1">
+        <div>
+          <hr/>
+          <div id="xpList">
+            <table class="table">
+              <thead class="thead-inverse">
+                <tr>
+                  <th>#</th>
+                  <th>Delegation Number</th>
+                  <th>Queries Number</th>
+                  <th>Global Execution Time</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- modal -->
+  <div class="modal fade" id="mymodal">
+    <div class="modal-dialog modal-lg" role="dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Query: <span class="qId"></span></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row container-fluid">
+            <div class="col-3">
+              Client id:
+            </div>
+            <div class="col-9">
+              <span class="id"></span>
+            </div>
+            <div class="col-3">
+              Started at:
+            </div>
+            <div class="col-9">
+              <span class="started_at"></span>
+            </div>
+            <div class="col-3">
+              Ended at:
+            </div>
+            <div class="col-9">
+              <span class="ended_at"></span>
+            </div>
+            <div class="col-3">
+              Query:
+            </div>
+            <div class="col-9">
+              <span class="query"></span>
+            </div>
+            <div class="col-12">
+              Response:
+            </div>
+            <div class="col-12">
+              <pre class="payload"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="delegatedModal">
+    <div class="modal-dialog modal-lg" role="dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delegated Queries</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row container-fluid">
+            <div class="card-block table-responsive">
+              <table class='table table-bordered' id='delegatedQueriesExecuted'>
+                <thead class="thead-inverse">
+                  <tr>
+                    <th>Scheduler Id</th>
+                    <th>Query </th>
+                    <th>Endpoint </th>
+                  </tr>
+                </thead>
+                <tbody id='delegatedQueriesExecutedBody'>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
 </html>
