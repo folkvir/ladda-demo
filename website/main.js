@@ -161,7 +161,6 @@ function initTableStatus(){
 /* listeners */
 function onQueryError(message) {
 	console.log('[LADDA-DEMO] Error query: ', message);
-	alert(message);
 }
 function onQueryTimeout(message) {
 	console.log('[LADDA-DEMO] Timeout query: ', message);
@@ -232,7 +231,8 @@ function createTimeline() {
 
 /* Send the queries */
 function sendQueries(timeout) {
-		if(!timeout) foglet.delegationProtocol.timeout = 60 * 1000;
+		if(!timeout) foglet.delegationProtocol.timeout = 10 * 1000;
+    foglet.delegationProtocol.timeout = eval(timeout);
     clearInterface();
     createTimeline();
 		showQueryStatus();
