@@ -3,7 +3,7 @@ var express = require("express");
 var app = express();
 var http = require('http').Server(app);
 var cors = require('cors');
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 8000;
 var fs = require('fs');
 var debug = require('debug')('ladda');
 

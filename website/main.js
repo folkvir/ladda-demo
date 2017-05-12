@@ -67,7 +67,7 @@ function createFoglet(iceServers) {
             trickle: true,
             iceServers
         },
-        deltatime: 1000 * 5,
+        deltatime: 1000 * 30,
         timeout: 1000 * 60 * 60,
         room: "laddademo-prod",
         signalingAdress: "https://signaling.herokuapp.com/",
@@ -242,7 +242,7 @@ function sendQueries(timeout) {
 
     updateNeighboursCount();
 
-    foglet.delegationProtocol.nbDestinations = delegationNumber;
+    foglet.delegationProtocol.nbDestinations = 3;
 
     // Initialize variables
     globalExec = 0;
@@ -351,8 +351,9 @@ function onReceiveAnswer(message) {
 }
 
 function computeStats(){
+  let globalEnd = (new Date()).getTime();
 	cumulatedExecutionTime = vis.moment.duration(cumulExec);
-	globalExecutionTime = vis.moment.duration(globalExec);
+	globalExecutionTime = vis.moment.duration(globalEnd - globalStartTime);
 	// Overhead total
 	overhead = vis.moment.duration(globalExec - cumulExec);
 
