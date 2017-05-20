@@ -72,6 +72,7 @@ function createFoglet(iceServers) {
         room: "laddademo-prod",
         signalingAdress: "https://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol(),
+        rpsType: 'fcn-wrtc',
         decoding: (data) => {
           return JSON.parse(data);
         },
@@ -130,6 +131,7 @@ function createFoglet(iceServers) {
 
 		createListeners();
 		clearInterface();
+    $('.send_queries').removeClass("disabled");
 
 }
 
