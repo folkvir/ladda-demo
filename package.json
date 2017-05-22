@@ -5,7 +5,9 @@
   "main": "http-server.js",
   "scripts": {
     "start": "DEBUG=ladda node http-server.js",
-    "wstart": "node http-server.js"
+    "wstart": "powershell ./start.ps1",
+    "proxy": "DEBUG=ladda node http-proxy.js",
+    "wproxy": "powershell ./proxystart.ps1"
   },
   "repository": {
     "type": "git",
@@ -39,5 +41,11 @@
   "engines": {
     "node": ">=6.10.0",
     "npm": "3.10.10"
+  },
+  "devDependencies": {
+    "express-http-proxy": "^1.0.3",
+    "http-proxy": "^1.16.2",
+    "http-proxy-middleware": "^0.17.4",
+    "url": "^0.11.0"
   }
 }

@@ -6,6 +6,8 @@ var cors = require('cors');
 var port = process.env.PORT || 8000;
 var fs = require('fs');
 var debug = require('debug')('ladda');
+var url = require('url');
+
 
 app.use(cors());
 
@@ -37,6 +39,8 @@ app.get('/ice', function(req, res){
 app.get('/', function(req, res){
   res.sendFile(__dirname + "/website/index.html");
 });
+
+
 
 http.listen(port, function () {
   debug('HTTP Server listening on port '+port);
