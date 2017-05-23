@@ -28,6 +28,7 @@ let globalExecutionTime, globalExec = 0;
 let cumulatedExecutionTime, cumulExec = 0;
 let overhead;
 let improvementRatio;
+let tpqinterval;
 
 let neighboursQueriesExecuted;
 
@@ -233,6 +234,30 @@ function createTimeline() {
 
 /* Send the queries */
 function sendQueries(timeout) {
+    // let tpqs = new Map();
+    // const PAGE_SIZE = 500;
+    // const COEF = 2.62;
+    //
+    // /**
+    //  * Return The approximative number of triple per second
+    //  */
+    // let rft = function(y) {
+    //   return Math.trunc((y / COEF) * PAGE_SIZE);
+    // }
+    // tpqInterval = setInterval(() => {
+    //   const responses = [];
+    //   let resp = foglet.delegationProtocol.endpoints;
+    //   for (var v of resp) {
+    //     let responseTime = v[1]._httpClient._statistics.responseTime;
+    //     if(v[0] === $('#endpoint').val()){
+    //       console.log(`Response time for: ${v[0]} => Average: ${responseTime.average}`);
+    //       console.log(`Number of parallel TPQ: ~${rft(responseTime.average)}`)
+    //       $('#throughput').text(rft(responseTime.average));
+    //     }
+    //   }
+    // }, 500 );
+
+
     // ERROR IF no http when we are using an https domain, etc...
     let protocolDomain = window.location.protocol;
     let protocolServer = $('#endpoint').val().split("/")[0];
@@ -293,6 +318,7 @@ function onReceiveRequest(id, message) {
 
 /* Executed when a Sparql answer is received */
 function onReceiveAnswer(message) {
+    // compute the throughpu
 		console.log('[LADDA-DEMO] Receive answer: ', message);
 		findQuery(message, 'bg-ok');
     executedQueries++;
@@ -310,6 +336,7 @@ function onReceiveAnswer(message) {
 
     // If last query
     if (executedQueries == queries.length) {
+        clearInterval(tpqInterval);
         computeStats(cumulatedExecutionTime);
         updateChart({
           id: workloadId,
