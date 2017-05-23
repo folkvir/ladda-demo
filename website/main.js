@@ -336,7 +336,7 @@ function onReceiveAnswer(message) {
 
     // If last query
     if (executedQueries == queries.length) {
-        clearInterval(tpqInterval);
+        // clearInterval(tpqInterval);
         computeStats(cumulatedExecutionTime);
         updateChart({
           id: workloadId,
