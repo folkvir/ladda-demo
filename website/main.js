@@ -72,7 +72,7 @@ function createFoglet(iceServers) {
         room: "laddademo-prod",
         signalingAdress: "https://signaling.herokuapp.com/",
         delegationProtocol: new LaddaProtocol(),
-        rpsType: 'fcn-wrtc',
+        rpsType: 'spray-wrtc-merging',
         decoding: (data) => {
           return JSON.parse(data);
         },
@@ -233,6 +233,15 @@ function createTimeline() {
 
 /* Send the queries */
 function sendQueries(timeout) {
+    // ERROR IF no http when we are using an https domain, etc...
+    let protocolDomain = window.location.protocol;
+    let protocolServer = $('#endpoint').val().split("/")[0];
+    console.log(protocolDomain, protocolServer);
+    if(protocolDomain !== protocolServer){
+      alert('\n You are using a domain protocol different of the server protocol. \n It may cause problems. \n Please switch protocols to use http-http or https-https protocols.');
+      return;
+    }
+
 		if(!timeout) foglet.delegationProtocol.timeout = 10 * 1000;
     foglet.delegationProtocol.timeout = eval(timeout);
     clearInterface();
