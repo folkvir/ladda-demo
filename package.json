@@ -6,7 +6,7 @@
   "scripts": {
     "start": "DEBUG=ladda node http-server.js",
     "wstart": "powershell ./start.ps1",
-    "proxy": "DEBUG=ladda node http-proxy.js",
+    "proxy": "DEBUG=proxy node proxy.js",
     "wproxy": "powershell ./proxystart.ps1"
   },
   "repository": {
