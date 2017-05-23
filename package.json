@@ -5,9 +5,7 @@
   "main": "http-server.js",
   "scripts": {
     "start": "DEBUG=ladda node http-server.js",
-    "wstart": "powershell ./start.ps1",
-    "proxy": "DEBUG=proxy node proxy.js",
-    "wproxy": "powershell ./proxystart.ps1"
+    "wstart": "powershell ./start.ps1"
   },
   "repository": {
     "type": "git",
