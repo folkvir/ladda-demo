@@ -29,8 +29,9 @@
     "bootstrap": "^4.0.0-alpha.6",
     "chart.js": "^2.5.0",
     "cors": "^2.8.1",
+    "debug": "^2.6.8",
     "express": "^4.15.2",
-    "foglet-ndp": "git+https://github.com/ran3d/foglet-ndp.git",
+    "foglet-ndp": "^3.0.1",
     "jquery": "^3.1.1",
     "lodash": "^4.17.4",
     "twilio": "^2.11.1",
@@ -39,11 +40,5 @@
   "engines": {
     "node": ">=6.10.0",
     "npm": "3.10.10"
-  },
-  "devDependencies": {
-    "express-http-proxy": "^1.0.3",
-    "http-proxy": "^1.16.2",
-    "http-proxy-middleware": "^0.17.4",
-    "url": "^0.11.0"
   }
 }
