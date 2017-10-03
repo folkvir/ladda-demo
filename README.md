@@ -1,24 +1,14 @@
 # ladda-demo (Query Delegation) ![Stun support](https://img.shields.io/badge/STUN%20SUPPORT-Twilio-blue.svg) ![foglet-ndp](https://travis-ci.org/RAN3D/foglet-ndp.svg?branch=master)
 
-Orignal Interface code is available here : https://github.com/ErrOrnAmE/LaddaFogletDemo
+Ladda Delegation Protocol Implementation is available here: [foglet-ndp](https://github.com/folkvir/foglet-ndp)
 
-Ladda Delegation Protocol Implementation is available here : [foglet-ndp](https://github.com/folkvir/foglet-ndp)
+:clapper: Video: https://youtu.be/YQsVgJHV5nw
 
-## Acknowledgement
-
-We thank
-
-* Thibaud Courtoison,
-*  Maël Quémard,
-* Sylvain Vuylsteke,
-
-students of the Computer Science Department at the University of Nantes for implementing the interface of the SPARQL foglet.
+:file_folder: Paper link: https://hal.archives-ouvertes.fr/hal-01585146
 
 ## Use
 
 Firstly, note there are 2 main parts in the interface, The Timeline section, and the Queries section.
-
-![First](./images/readme1.png)
 
 If you just want to execute the example workload, so just click on the button **Execute** and refer to the *Run part*.
 
@@ -28,7 +18,7 @@ But if you want to execute your own workload of queries, you have to provide 3 t
 
 Firstly (first red section):
 * The **Server url** (Triple Pattern Fragment Server)
-* The **Delegation Number** A value between 0 or K (The size of the network) ```[0...K]```
+* The **Timeout** Timeout value in milliseconds for each request sent to a neighbor ```[0...K]```
 
 Secondly (second red section):
 * Your own **workload** as an array of strings ``` ['query1', 'query2', ..., 'queryN'] ```
@@ -55,4 +45,14 @@ There are 4 stats computed:
 * Improvement ratio (Global to Sequential)
 * Overhead (Communication)
 
-![First](./images/readme2.png)
+## Acknowledgement
+
+We thank
+
+* Thibaud Courtoison,
+*  Maël Quémard,
+* Sylvain Vuylsteke,
+
+students of the Computer Science Department at the University of Nantes for implementing the interface of the SPARQL foglet.
+
+Their orignal interface code is available here: https://github.com/ErrOrnAmE/LaddaFogletDemo
