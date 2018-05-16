@@ -32,8 +32,8 @@ let tpqinterval;
 let neighboursQueriesExecuted;
 
 $.get( "/ice",).then(data => {
-  data.ice.splice(0, 1)
-  data.ice.forEach(p => {
+  const ice = data.ice
+  ice.forEach(p => {
     if(p.url.indexOf('?transport=tcp') > -1){
         p.url = p.url.replace('?transport=tcp', '');
     } else if(p.url.indexOf('?transport=udp') > -1){
@@ -51,25 +51,33 @@ $.get( "/ice",).then(data => {
 /* Create foglet and initiate connection */
 function createFoglet(iceServers) {
     foglet = new NDP({
-        protocol: "laddademo",
-        webrtc: {
-            trickle: true,
-            iceServers
-        },
-        deltatime: 1000 * 30,
-        timeout: 1000 * 60 * 60,
-        room: "laddademo-prod",
-        signalingAdress: "https://signaling.herokuapp.com:80/",
-        delegationProtocol: new LaddaProtocol(),
-        rpsType: 'spray-wrtc-merging',
-        decoding: (data) => {
-          return JSON.parse(data);
-        },
-				encoding: (data) => {
-          return JSON.stringify(data);
+      rps: {
+        options: {
+          protocol: "laddademo",
+          webrtc: { // add WebRTC options
+            trickle: true, // enable trickle (divide offers in multiple small offers sent by pieces)
+            iceServers: [] // define iceServers in non local instance
+          },
+          timeout: 2 * 60 * 1000, // spray-wrtc timeout before definitively close a WebRTC connection.
+          pendingTimeout: 60 * 1000,
+          delta: 60 * 1000, // spray-wrtc shuffle interval
+          signaling: {
+            address: 'http://signaling.herokuapp.com/',
+            // signalingAdress: 'https://signaling.herokuapp.com/', // address of the signaling server
+            room: 'ladda-demo-prod' // room to join
+          },
         }
+      },
+      delegationProtocol: new LaddaProtocol(),
+      decoding: (data) => {
+        return JSON.parse(data);
+      },
+			encoding: (data) => {
+        return JSON.stringify(data);
+      }
     });
     foglet.share()
+    foglet.init()
     foglet.onUnicast(function(id, message) {
         if (message.type === 'request') {
             onReceiveRequest(id, message);

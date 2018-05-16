@@ -11,7 +11,7 @@ const url = require('url');
 
 const twilioconfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'twilio_config.json'), 'utf-8'))
 //
-app.use(cors());
+// app.use(cors());
 
 app.use('/', express.static(__dirname + "/"));
 app.use('/foglet-ndp.bundle.js', express.static(path.resolve(__dirname + "/node_modules/foglet-ndp/dist/foglet-ndp.bundle.js")));
