@@ -272,7 +272,7 @@ function sendQueries(timeout) {
 
     updateNeighboursCount();
 
-    foglet.delegationProtocol.nbDestinations = 3;
+    // foglet.delegationProtocol.nbDestinations.value = 3;
 
     // Initialize variables
     globalExec = 0;
@@ -335,7 +335,7 @@ function onReceiveAnswer(message) {
         updateChart({
           id: workloadId,
           name: 'Experiment #'+ experiments ,
-          delegationNumber: foglet.delegationProtocol.nbDestinations,
+          delegationNumber: foglet.delegationProtocol.nbDestinations.value,
           queriesNumber: executedQueries,
           executionTime: globalExec
         });
