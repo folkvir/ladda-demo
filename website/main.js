@@ -1,7 +1,6 @@
-const NDP = require("foglet-ndp").NDP;
-const LaddaProtocol = require("foglet-ndp").LaddaProtocol;
 
-
+const NDP = window.foglet.NDP;
+const LaddaProtocol = window.foglet.LaddaProtocol;
 localStorage.debug = 'foglet-*';
 
 const defaultQuery = [
@@ -32,33 +31,22 @@ let tpqinterval;
 
 let neighboursQueriesExecuted;
 
-// Connect to ICE server
-$(document).ready(function() {
-
-    /* Haven't spent time on this ajax stuff,
-        We should probably change some settings. */
-    $.ajax({
-        url : "/ice",
-        success: function(response, status) {
-            let iceServers;
-            if (response.ice) {
-                iceServers = response.ice;
-            }
-            console.log(iceServers);
-            const ices = [];
-            iceServers.forEach(ice => {
-              console.log(ice);
-              if(ice.credential && ice.username){
-                  ices.push({ urls: ice.url, credential: ice.credential, username: ice.username });
-              } else {
-                  ices.push({ urls: ice.url });
-              }
-            })
-            console.log(ices);
-            createFoglet(ices);
-        }
-    });
-});
+$.get( "/ice",).then(data => {
+  data.ice.splice(0, 1)
+  data.ice.forEach(p => {
+    if(p.url.indexOf('?transport=tcp') > -1){
+        p.url = p.url.replace('?transport=tcp', '');
+    } else if(p.url.indexOf('?transport=udp') > -1){
+        p.url = p.url.replace('?transport=udp', '');
+    }
+    p.urls = String(p.url)
+    delete p.url
+  })
+  console.log(data)
+  createFoglet(data);
+}).catch((e) => {
+  console.error(e)
+})
 
 /* Create foglet and initiate connection */
 function createFoglet(iceServers) {
@@ -71,7 +59,7 @@ function createFoglet(iceServers) {
         deltatime: 1000 * 30,
         timeout: 1000 * 60 * 60,
         room: "laddademo-prod",
-        signalingAdress: "https://signaling.herokuapp.com/",
+        signalingAdress: "https://signaling.herokuapp.com:80/",
         delegationProtocol: new LaddaProtocol(),
         rpsType: 'spray-wrtc-merging',
         decoding: (data) => {
@@ -81,9 +69,7 @@ function createFoglet(iceServers) {
           return JSON.stringify(data);
         }
     });
-
-    foglet.init();
-
+    foglet.share()
     foglet.onUnicast(function(id, message) {
         if (message.type === 'request') {
             onReceiveRequest(id, message);

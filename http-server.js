@@ -1,46 +1,40 @@
-"use strict";
-var express = require("express");
-var app = express();
-var http = require('http').Server(app);
-var cors = require('cors');
-var port = process.env.PORT || 8000;
-var fs = require('fs');
-var debug = require('debug')('ladda');
-var url = require('url');
+const express = require("express");
+const app = express();
+const Twilio = require('twilio')
+const http = require('http').Server(app);
+const cors = require('cors');
+const port = process.env.PORT || 8000;
+const fs = require('fs');
+const path = require('path')
+const debug = require('debug')('ladda');
+const url = require('url');
 
-
+const twilioconfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'twilio_config.json'), 'utf-8'))
+//
 app.use(cors());
 
 app.use('/', express.static(__dirname + "/"));
-app.get('/ice', function(req, res){
-	debug("A user want ice from client:");
-	fs.readFile("./twilio_config.json", 'utf-8', (err, data) => {
-		debug(data);
-		if (err) throw err;
-		let parsed;
-		try {
-			parsed = JSON.parse(data);
-		} catch (e) {
-			res.send('Error:', e.stack);
-		}
-		try {
-			var client = require('twilio')(parsed.api_key, parsed.api_secret);
-			var account = client.accounts(parsed.sid);
-			account.tokens.create({}, function(err, token) {
-				res.send({ ice: token.ice_servers });
-			});
-		} catch (e) {
-			debug(e);
-			res.send('Error when getting your credentials.');
-		}
-	});
-});
+app.use('/foglet-ndp.bundle.js', express.static(path.resolve(__dirname + "/node_modules/foglet-ndp/dist/foglet-ndp.bundle.js")));
+
+app.get('/ice', function (req, res) {
+  console.log('A user want ice from client:')
+  try {
+    var client = Twilio(twilioconfig.api_key, twilioconfig.api_secret, {accountSid: twilioconfig.sid})
+    client.api.account.tokens.create({}).then(token => {
+      console.log(token.iceServers)
+      res.send({ ice: token.iceServers })
+    }).catch(error => {
+      console.log(error)
+    })
+  } catch (e) {
+    console.log(e)
+    res.send('Error when getting your credentials.')
+  }
+})
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + "/website/index.html");
 });
-
-
 
 http.listen(port, function () {
   debug('HTTP Server listening on port '+port);
