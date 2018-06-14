@@ -35,7 +35,6 @@ $.get( "/ice",).then(data => {
   const ice = data.ice
   ice.forEach(p => {
     p.urls = String(p.url)
-    delete p.url
   })
   console.log(data)
   createFoglet(data);
