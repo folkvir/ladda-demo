@@ -34,11 +34,6 @@ let neighboursQueriesExecuted;
 $.get( "/ice",).then(data => {
   const ice = data.ice
   ice.forEach(p => {
-    if(p.url.indexOf('?transport=tcp') > -1){
-        p.url = p.url.replace('?transport=tcp', '');
-    } else if(p.url.indexOf('?transport=udp') > -1){
-        p.url = p.url.replace('?transport=udp', '');
-    }
     p.urls = String(p.url)
     delete p.url
   })
@@ -56,7 +51,7 @@ function createFoglet(iceServers) {
           protocol: "laddademo",
           webrtc: { // add WebRTC options
             trickle: true, // enable trickle (divide offers in multiple small offers sent by pieces)
-            iceServers: [] // define iceServers in non local instance
+            config: {iceServers} // define iceServers in non local instance
           },
           timeout: 2 * 60 * 1000, // spray-wrtc timeout before definitively close a WebRTC connection.
           pendingTimeout: 60 * 1000,
